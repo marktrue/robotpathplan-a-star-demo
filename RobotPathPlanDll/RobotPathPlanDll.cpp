@@ -5,16 +5,28 @@
 #include "RobotPathPlanDll.h"
 #include "PathPlan.h"
 
+#ifdef DEBUG
+#define DEBUG_LOG 1
+#endif
+
 int RobotPathPlan(int* &aPath, int &nLen)
 {
-	int nRet;
+	int nRet = -1;
+#if DEBUG_LOG
 	FILE *pf_log = fopen("F://findpathlog.log","a+");
+	if ( pf_log ==NULL )
+	{
+		return nRet;
+	}
+#endif
 	clock_t t1,t2;
 	t1 = clock();
 	nRet = FindPath(g_pntStart, g_pntEnd, aPath, nLen);
 	t2 = clock();
+#if DEBUG_LOG
 	fprintf(pf_log, "find path in time:%dms pathLen:%d\n",t2 - t1,nLen / 2);
 	fclose(pf_log);
+#endif
 	return nRet;
 }
 
