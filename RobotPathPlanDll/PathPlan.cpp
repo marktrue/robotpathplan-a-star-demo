@@ -4,12 +4,27 @@
 #include <queue>
 #include <cmath>
 #include <memory.h>
-#include <assert.h>
 
+#ifdef _DEBUG
+#include <assert.h>
+#define INVALID_CHECK_DEBUG 1
+#else
+#define INVALID_CHECK_DEBUG 0
+#endif
+
+//f(x)+g(x)*thita 用于调试，正常情况下应该为一
 #define Thita 1
+
+//动态寻路优化开关
 #define DYNAMIC_OPTIMIZE 1
-#define FIBHEAP_OPTIMIZE 0
+
+//斐波那契堆优化开关，因为问题的规模并不是很大，斐波那契堆较二叉堆而言，时间效率反而较差
+#define FIBHEAP_OPTIMIZE 1
+
+//原始A星算法OPEN表使用快速排序排序
 #define OPEN_USE_LIST_QSORT 0 && !FIBHEAP_OPTIMIZE
+
+//启发函数的优化
 #define HEURISTIC_OPTIMIZE 1
 
 #if OPEN_USE_LIST_QSORT
@@ -45,6 +60,7 @@ BYTE* g_bMap = NULL;
 point g_pntStart = {0,0};
 point g_pntEnd = {0,0};
 bool m_nInitialized = false;
+int *g_aPath = NULL;
 
 
 struct cmp
@@ -115,6 +131,13 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 		oPrtyQue.pop();
 #endif
 		pNodeCur = &m_nodeMap[oPntCur.x][oPntCur.y];
+
+#if INVALID_CHECK_DEBUG
+		assert(oPntCur.x >= 0);
+		assert(oPntCur.x < g_nWidth);
+		assert(oPntCur.y >= 0);
+		assert(oPntCur.y < g_nHeight);
+#endif
 		//
 		if (flag[oPntCur.x][oPntCur.y] == 2)
 		{
@@ -167,11 +190,14 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 		{
 			//find the goal point
 			nLen = pNodeCur->depth * 2;
-			aPath = new int[nLen];
-			for (int i = nLen - 2; pNodeCur != NULL; pNodeCur = pNodeCur->father, i -= 2)
+#if INVALID_CHECK_DEBUG
+			assert(g_aPath == NULL);
+#endif
+			g_aPath = new int[nLen];
+			for (int i = nLen - 2; pNodeCur != NULL && i >= 0; pNodeCur = pNodeCur->father, i -= 2)
 			{
-				aPath[i] = (pNodeCur - m_nodeMap[0]) / g_nHeight;
-				aPath[i + 1] = (pNodeCur - m_nodeMap[0]) % g_nHeight;
+				g_aPath[i] = (pNodeCur - m_nodeMap[0]) / g_nHeight;
+				g_aPath[i + 1] = (pNodeCur - m_nodeMap[0]) % g_nHeight;
 				//
 				if (pNodeCur->father != NULL)
 				{
@@ -179,12 +205,22 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 				}
 			}
 			//while( !oPrtyQue.empty() ){oPrtyQue.pop();}
+#if INVALID_CHECK_DEBUG
+			assert(aPath ==NULL);
+#endif
+			aPath = g_aPath;
 			return RPP_SUCCESS;
 		}
 		if (trial(oPntCur.x + 1, oPntCur.y))
 		{
 			oNewPnt = oPntCur;
 			oNewPnt.x ++;
+#if INVALID_CHECK_DEBUG
+			assert(oNewPnt.x >= 0);
+			assert(oNewPnt.x < g_nWidth);
+			assert(oNewPnt.y >= 0);
+			assert(oNewPnt.y < g_nHeight);
+#endif
 			pNewNode = &m_nodeMap[oNewPnt.x][oNewPnt.y];
 
 			if (flag[oNewPnt.x][oNewPnt.y] == 0 || pNewNode->depth > pNodeCur->depth + 1)
@@ -222,6 +258,12 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 		{
 			oNewPnt = oPntCur;
 			oNewPnt.x --;
+#if INVALID_CHECK_DEBUG
+			assert(oNewPnt.x >= 0);
+			assert(oNewPnt.x < g_nWidth);
+			assert(oNewPnt.y >= 0);
+			assert(oNewPnt.y < g_nHeight);
+#endif
 			pNewNode = &m_nodeMap[oNewPnt.x][oNewPnt.y];
 
 			if (flag[oNewPnt.x][oNewPnt.y] == 0 || pNewNode->depth > pNodeCur->depth + 1)
@@ -255,6 +297,12 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 		{
 			oNewPnt = oPntCur;
 			oNewPnt.y ++;
+#if INVALID_CHECK_DEBUG
+			assert(oNewPnt.x >= 0);
+			assert(oNewPnt.x < g_nWidth);
+			assert(oNewPnt.y >= 0);
+			assert(oNewPnt.y < g_nHeight);
+#endif
 			pNewNode = &m_nodeMap[oNewPnt.x][oNewPnt.y];
 
 			if (flag[oNewPnt.x][oNewPnt.y] == 0 || pNewNode->depth > pNodeCur->depth + 1)
@@ -288,6 +336,12 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 		{
 			oNewPnt = oPntCur;
 			oNewPnt.y --;
+#if INVALID_CHECK_DEBUG
+			assert(oNewPnt.x >= 0);
+			assert(oNewPnt.x < g_nWidth);
+			assert(oNewPnt.y >= 0);
+			assert(oNewPnt.y < g_nHeight);
+#endif
 			pNewNode = &m_nodeMap[oNewPnt.x][oNewPnt.y];
 
 			if (flag[oNewPnt.x][oNewPnt.y] == 0 || pNewNode->depth > pNodeCur->depth + 1)
@@ -319,6 +373,16 @@ int FindPath(point &startP, point &endP, int *&aPath, int &nLen)
 		}
 	}
 	return RPP_FAILED;
+}
+
+int ReleasePathArray()
+{
+	if (g_aPath != NULL)
+	{
+		delete[] g_aPath;
+		g_aPath = NULL;
+	}
+	return RPP_SUCCESS;
 }
 
 int InitializePathPlan(int nWidth, int nHeight)
@@ -396,7 +460,9 @@ int UnInitializePathPlan()
 	}
 	//assert(m_nodeMap[0] != NULL);
 	//delete[] m_nodeMap[0];
+#if INVALID_CHECK_DEBUG
 	assert(m_nodeMap != NULL);
+#endif
 	delete[] m_nodeMap[0];
 	m_nodeMap[0] = NULL;
 	delete[] m_nodeMap;
@@ -404,7 +470,9 @@ int UnInitializePathPlan()
 
 	//assert(flag[0] != NULL);
 	//delete[] flag[0];
+#if INVALID_CHECK_DEBUG
 	assert(flag != NULL);
+#endif
 	delete[] flag[0];
 	flag[0] = NULL;
 	delete[] flag;

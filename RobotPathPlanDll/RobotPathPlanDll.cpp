@@ -2,10 +2,11 @@
 #include <memory.h>
 #include <time.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "RobotPathPlanDll.h"
 #include "PathPlan.h"
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #define DEBUG_LOG 1
 #endif
 
@@ -14,20 +15,24 @@ int RobotPathPlan(int* &aPath, int &nLen)
 	int nRet = -1;
 #if DEBUG_LOG
 	FILE *pf_log = fopen("F://findpathlog.log","a+");
-	if ( pf_log ==NULL )
-	{
-		return nRet;
-	}
 #endif
 	clock_t t1,t2;
 	t1 = clock();
 	nRet = FindPath(g_pntStart, g_pntEnd, aPath, nLen);
 	t2 = clock();
 #if DEBUG_LOG
-	fprintf(pf_log, "find path in time:%dms pathLen:%d\n",t2 - t1,nLen / 2);
-	fclose(pf_log);
+	if ( pf_log != NULL )
+	{
+		fprintf(pf_log, "find path in time:%dms pathLen:%d\n",t2 - t1,nLen / 2);
+		fclose(pf_log);
+	}
 #endif
 	return nRet;
+}
+
+int RobotReleaseArray()
+{
+	return ReleasePathArray();
 }
 
 int RobotLoadMap(char* sPath, int &nStartPx, int &nStartPy, int &nEndPx, int &nEndPy)
@@ -157,6 +162,14 @@ int RobotCreateRandomMap(int nWidth, int nHeight, int &nStartPx, int &nStartPy, 
 int setRobotPoint(int x, int y)
 {
 	//g_bMap[g_pntStart.x + g_pntStart.y * g_nWidth] = PntType_Normal;
+	if (x < 0 || x >= g_nWidth)
+	{
+		return RPP_FAILED;
+	}
+	if (y < 0 || y >= g_nHeight)
+	{
+		return RPP_FAILED;
+	}
 	g_pntStart.x = x;
 	g_pntStart.y = y;
 	//g_bMap[g_pntStart.x + g_pntStart.y * g_nWidth] = PntType_Robot;
@@ -166,6 +179,14 @@ int setRobotPoint(int x, int y)
 int setEndPoint(int x, int y)
 {
 	//g_bMap[g_pntEnd.x + g_pntEnd.y * g_nWidth] = PntType_Normal;
+	if (x < 0 || x >= g_nWidth)
+	{
+		return RPP_FAILED;
+	}
+	if (y < 0 || y >= g_nHeight)
+	{
+		return RPP_FAILED;
+	}
 	g_pntEnd.x = x;
 	g_pntEnd.y = y;
 	//g_bMap[g_pntEnd.x + g_pntEnd.y * g_nWidth] = PntType_Goal;

@@ -56,10 +56,12 @@
             this.AcceptButton = this.OK_btn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(289, 130);
+            this.ClientSize = new System.Drawing.Size(297, 134);
             this.Controls.Add(this.OK_btn);
             this.Controls.Add(this.About_lbl);
+            this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(305, 168);
+            this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(305, 168);
             this.Name = "About_frm";
             this.ShowIcon = false;

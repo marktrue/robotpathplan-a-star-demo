@@ -312,6 +312,10 @@ namespace RobotPathPlanShow
             {
                 return;
             }
+            if (m_nMouseDown)
+            {
+                return;
+            }
             ReFindPath();
             if (0 < m_nPathLen)
             {

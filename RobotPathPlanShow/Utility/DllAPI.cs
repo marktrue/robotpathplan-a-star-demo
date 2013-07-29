@@ -20,8 +20,13 @@ namespace RobotPathPlanShow
                 aPath = new int[nLen];
                 Marshal.Copy(pPath, aPath, 0, nLen);
             }
+            RobotReleaseArray();
+            pPath = IntPtr.Zero;
             return Ret;
         }
+
+        [DllImport("RobotPathPlanDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int RobotReleaseArray();
 
         [DllImport("RobotPathPlanDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int RobotLoadMap(string sPath, ref int nStartPx, ref int nStartPy, ref int nEndPx, ref int nEndPy);
@@ -79,6 +84,15 @@ namespace RobotPathPlanShow
         {
             IntPtr pMap = IntPtr.Zero;
             int _width = DllAPI.getWidth();
+            int _height = DllAPI.getHeight();
+            if (x < 0 || x >= _width)
+            {
+                return -1;
+            }
+            if (y < 0 || y >= _height)
+            {
+                return -1;
+            }
             DllAPI.getMap(ref pMap);
             Marshal.WriteByte(pMap, x + y * _width, data);
             return 0;
@@ -88,6 +102,15 @@ namespace RobotPathPlanShow
         {
             IntPtr pMap = IntPtr.Zero;
             int _width = DllAPI.getWidth();
+            int _height = DllAPI.getHeight();
+            if (x < 0 || x >= _width)
+            {
+                return -1;
+            }
+            if (y < 0 || y >= _height)
+            {
+                return -1;
+            }
             DllAPI.getMap(ref pMap);
             data = Marshal.ReadByte(pMap, x + y * _width);
             return 0;

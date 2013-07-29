@@ -11,6 +11,8 @@
 
 RobotPathPlan_API int RobotPathPlan(int* &aPath, int &nLen);
 
+RobotPathPlan_API int RobotReleaseArray();
+
 RobotPathPlan_API int RobotLoadMap(char* sPath, int &nStartPx, int &nStartPy, int &nEndPx, int &nEndPy);
 
 RobotPathPlan_API int RobotSaveMap(char* sPath);

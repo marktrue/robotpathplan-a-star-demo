@@ -30,5 +30,6 @@ extern "C" int g_nHeight;
 extern "C" BYTE* g_bMap;
 extern "C" point g_pntStart;
 extern "C" point g_pntEnd;
+extern "C" int* g_aPath;
 
 #endif
