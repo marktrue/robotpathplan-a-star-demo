@@ -53,7 +53,7 @@ namespace RobotPathPlanShow
         private int[] m_aPath;
         //private int m_nPos;
         private int m_nPathLen;
-        private Timer m_oTimer;
+        private System.Windows.Forms.Timer m_oTimer;
 
         private bool m_nMouseDown;
 
@@ -67,6 +67,8 @@ namespace RobotPathPlanShow
             ChangeState(State.Edit);
             ChangeCurrentBlock(BlockType.Wall);
             m_nMouseDown = false;
+            m_aPath = null;
+            m_nPathLen = 0;
         }
 
         private void InitializeMap()
